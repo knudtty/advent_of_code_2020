@@ -30,9 +30,9 @@ impl<'a> SimpleTobaggan<'a> {
         }
     }
 
-    fn get_location_type(&self, x: usize, y: usize, slope: &str) -> LocationType {
-        if let Some(row) = slope.lines().nth(y as usize) {
-            match row.chars().nth(x as usize) {
+    fn get_location_type(&self) -> LocationType {
+        if let Some(row) = self.slope.lines().nth(self.position.y) {
+            match row.chars().nth(self.position.x) {
                 Some(spot) => match spot {
                     '#' => return LocationType::Tree,
                     _ => return LocationType::Empty,
@@ -46,13 +46,10 @@ impl<'a> SimpleTobaggan<'a> {
 
     fn ski_slope(&mut self) -> usize {
         let line_len = self.slope.lines().nth(0).unwrap().len();
-        let mut cur_location = LocationType::Empty;
         let mut trees_hit = 0;
-        while cur_location != LocationType::NotALocation {
-            let new_pos = self.get_new_location(&line_len);
-            cur_location =
-                self.get_location_type(self.position.x, self.position.y, self.slope);
-            match cur_location {
+        let mut new_pos = Point2::new(0, 0);
+        while self.get_location_type() != LocationType::NotALocation {
+            match self.get_location_type() {
                 LocationType::NotALocation => {}
                 LocationType::Tree => {
                     trees_hit += 1;
@@ -62,8 +59,9 @@ impl<'a> SimpleTobaggan<'a> {
                     self.position = new_pos;
                 }
             }
+            new_pos = self.get_new_location(&line_len);
         }
-        return trees_hit
+        return trees_hit;
     }
 }
 
